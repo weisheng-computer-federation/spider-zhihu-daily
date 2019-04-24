@@ -36,7 +36,7 @@ def write_one_page(url):
             file.write(str(soup.select('.headline')[0].select('img')[0]) + '\n')
             if len(soup.select('.headline')[0].select('span')):
                 file.write('>' + soup.select('.headline')[0].select('span')[0].string + '\n')
-            file.write(str(soup.find(name='div', attrs={'class':'content'})))
+            file.write(str(soup.find(name='div', attrs={'class':'content'})) + '\n')
     except FileNotFoundError:
         pass
 
