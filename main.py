@@ -24,7 +24,7 @@ def write_one_page(url):
     print('- ' + url + ': ' + title)
     
     # 创建文件夹
-    path = 'zhihu-daily/' + str(datetime.date.today())
+    path = 'zhihu-daily/'
     if not os.path.exists(path):
         os.makedirs(path)
     path = path + '/' + title + '.md'
