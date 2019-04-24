@@ -42,3 +42,4 @@ def write_one_page(url):
 
 for url in get_urls():
     write_one_page(url)
+
