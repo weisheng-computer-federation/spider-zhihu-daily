@@ -1,14 +1,9 @@
-import datetime
-import re
-import requests
-import os
+import datetime, re, requests, os
 from bs4 import BeautifulSoup
 
 def get_one_page(url):
     # 获取单个页面的信息
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-    }
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
     response = requests.get(url=url, headers=headers)
     if response.ok:
         return response
@@ -34,9 +29,13 @@ def write_one_page(url):
         os.makedirs(path)
     path = path + '/' + title + '.md'
     
+    # 有时候会有奇妙的FNFE报错
     try:
         with open(path, 'w', encoding='UTF-8') as file:
-            file.write(str(soup.find(name='div', attrs={'class':'headline'})))
+            file.write(str(soup.find(name='h1', attrs={'class':'headline-title'})))
+            file.write(str(soup.select('.headline')[0].select('img')[0]) + '\n')
+            if len(soup.select('.headline')[0].select('span')):
+                file.write('>' + soup.select('.headline')[0].select('span')[0].string + '\n')
             file.write(str(soup.find(name='div', attrs={'class':'content'})))
     except FileNotFoundError:
         pass
