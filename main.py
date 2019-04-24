@@ -27,7 +27,7 @@ def write_one_page(url):
     path = 'zhihu-daily/'
     if not os.path.exists(path):
         os.makedirs(path)
-    path = path + '/' + title + '.md'
+    path = path + '/' + title.replace('/','') + '.md'
     
     # 有时候会有奇妙的FNFE报错
     try:
@@ -36,10 +36,9 @@ def write_one_page(url):
             file.write(str(soup.select('.headline')[0].select('img')[0]) + '\n')
             if len(soup.select('.headline')[0].select('span')):
                 file.write('>' + soup.select('.headline')[0].select('span')[0].string + '\n')
-            file.write(str(soup.find(name='div', attrs={'class':'content'})) + '\n')
-    except FileNotFoundError:
+                file.write(str(soup.find(name='div', attrs={'class':'content'})) + '\n')
+    except:
         pass
 
 for url in get_urls():
     write_one_page(url)
-
