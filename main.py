@@ -32,7 +32,14 @@ def write_one_page(url):
     # 有时候会有奇妙的FNFE报错
     try:
         with open(path, 'w', encoding='UTF-8') as file:
-            file.write(str(soup.find(name='h1', attrs={'class':'headline-title'})))
+            title = soup.find(name='h1', attrs={'class':'headline-title'}).string 
+            file.write('\
+---\n\
+title: $=-titel-=$\n\
+date: $=-date-=$\n\
+tags: [知乎日报]\n\
+---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
+            file.write('# ' + title + '\n')
             file.write(str(soup.select('.headline')[0].select('img')[0]) + '\n')
             if len(soup.select('.headline')[0].select('span')):
                 file.write('>' + soup.select('.headline')[0].select('span')[0].string + '\n')
