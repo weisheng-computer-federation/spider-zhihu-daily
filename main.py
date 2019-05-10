@@ -29,21 +29,20 @@ def write_one_page(url):
         os.makedirs(path)
     path = path + '/' + '知乎日报|' + title.replace('/','') + '.md'
     
-    # 有时候会有奇妙的FNFE报错
     try:
+        headline = soup.find(name='div', attrs={'class':'headline'})
+        title = '# ' + headline.find(name='h1').string
+        image = str(headline.find(name='img'))
+        image_source = '>' + headline.find(name='span').string
+        answers = soup.find_all(name='div', attrs={'answer'})
         with open(path, 'w', encoding='UTF-8') as file:
-            title = soup.find(name='h1', attrs={'class':'headline-title'}).string 
-            file.write('\
----\n\
-title: 知乎日报| $=-titel-=$\n\
-date: $=-date-=$\n\
-tags: [知乎日报]\n\
----\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
-            file.write('# ' + title + '\n')
-            file.write(str(soup.select('.headline')[0].select('img')[0]) + '\n')
-            if len(soup.select('.headline')[0].select('span')):
-                file.write('>' + soup.select('.headline')[0].select('span')[0].string + '\n')
-                file.write(str(soup.find(name='div', attrs={'class':'content'})) + '\n')
+            file.write('---\ntitle: $=-titel-=$\ndate: $=-date-=$\ntags: [知乎日报]\n---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
+            file.write(title + '\n')
+            file.write(image + '\n')
+            if image_source != None:
+                file.write(image_source + '\n')
+            for answer in answers:
+                file.write(str(answer) + '\n')
     except:
         pass
 
