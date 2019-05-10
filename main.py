@@ -27,22 +27,23 @@ def write_one_page(url):
     path = 'zhihu-daily/'
     if not os.path.exists(path):
         os.makedirs(path)
-    path = path + '/' + '知乎日报|' + title.replace('/','') + '.md'
+    path = path + '/' + '知乎日报' + title.replace('/','') + '.md'
     
     try:
         headline = soup.find(name='div', attrs={'class':'headline'})
         title = headline.find(name='h1').string
-        image = str(headline.find(name='img'))
-        image_source = '> ' + headline.find(name='span').string
+		# <img alt="" src="https://pic3.zhimg.com/v2-ceba1854879ed8c2e0eaabc2e7bc67ea.jpg"/>
+        image = '![](' + str(headline.find(name='img').attrs['src']) + ')'
+        image_source = headline.find(name='span').string
         answers = soup.find_all(name='div', attrs={'answer'})
         with open(path, 'w', encoding='UTF-8') as file:
             file.write('---\ntitle: $=-titel-=$\ndate: $=-date-=$\ntags: [知乎日报]\n---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
             file.write('# ' + title + '\n')
             file.write(image + '\n')
             if image_source != None:
-                file.write(image_source + '\n')
+                file.write('> ' + image_source + '\n')
             for answer in answers:
-                file.write(str(answer) + '\n')
+                file.write(str(answer) + '\n<hr>\n')
     except:
         pass
 
