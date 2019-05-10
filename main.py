@@ -27,7 +27,7 @@ def write_one_page(url):
     path = 'zhihu-daily/'
     if not os.path.exists(path):
         os.makedirs(path)
-    path = path + '/' + title.replace('/','') + '.md'
+    path = path + '/' + '知乎日报|' + title.replace('/','') + '.md'
     
     # 有时候会有奇妙的FNFE报错
     try:
@@ -35,7 +35,7 @@ def write_one_page(url):
             title = soup.find(name='h1', attrs={'class':'headline-title'}).string 
             file.write('\
 ---\n\
-title: $=-titel-=$\n\
+title: 知乎日报| $=-titel-=$\n\
 date: $=-date-=$\n\
 tags: [知乎日报]\n\
 ---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
