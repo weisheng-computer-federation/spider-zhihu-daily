@@ -37,7 +37,7 @@ def write_one_page(url):
         image_source = headline.find(name='span').string
         answers = soup.find_all(name='div', attrs={'answer'})
         with open(path, 'w', encoding='UTF-8') as file:
-            file.write('---\ntitle: $=-titel-=$\ndate: $=-date-=$\ntags: [知乎日报]\n---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
+            file.write('---\ntitle: 知乎日报|$=-titel-=$\ndate: $=-date-=$\ntags: [知乎日报]\n---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.datetime.now())))
             file.write('# ' + title + '\n')
             file.write(image + '\n')
             if image_source != None:
