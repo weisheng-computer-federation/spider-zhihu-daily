@@ -1,57 +1,67 @@
+from bs4 import BeautifulSoup
 from datetime import datetime
 from os import makedirs
 from os.path import exists
-from re import findall
-
-from bs4 import BeautifulSoup
 from requests import get
 
 
-def get_one_page(url):
-    # 获取单个页面的信息
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
-    response = get(url=url, headers=headers)
-    if response.ok:
-        return response
+class Page():
 
-def get_urls():
-    # 获取知乎日报每篇文章的url
-    main_url = 'https://daily.zhihu.com'
-    response = get_one_page(main_url)
-    urls = findall('"box".*?href="(.*?)".*?"link-button"', response.text)
-    for iter in range(0, len(urls)):
-        urls[iter] = main_url + urls[iter]
-    return urls
+    def __init__(self, url):
+        self.url = url
+        self.soup_init()
 
-def write_one_page(url):
-    # 将单篇文章写入文件
-    soup = BeautifulSoup(get_one_page(url).text, 'lxml')
-    title = soup.find(name='title').string.replace('\r\n', '')
-    print('- ' + url + ': ' + title)
-    
-    # 创建文件夹
-    path = 'zhihu-daily/'
-    if not exists(path):
-        makedirs(path)
-    path = path + '/' + '知乎日报' + title.replace('/','') + '.md'
-    
-    try:
-        headline = soup.find(name='div', attrs={'class':'headline'})
-        title = headline.find(name='h1').string
-		# <img alt="" src="https://pic3.zhimg.com/v2-ceba1854879ed8c2e0eaabc2e7bc67ea.jpg"/>
-        image = '![](' + str(headline.find(name='img').attrs['src']) + ')'
-        image_source = headline.find(name='span').string
-        answers = soup.find_all(name='div', attrs={'answer'})
-        with open(path, 'w', encoding='UTF-8') as file:
-            file.write('---\ntitle: 知乎日报|$=-titel-=$\ndate: $=-date-=$\ntags: [知乎日报]\n---\n'.replace('$=-titel-=$', title).replace('$=-date-=$', str(datetime.now())))
-            file.write('# ' + title + '\n')
-            file.write(image + '\n')
-            if image_source != None:
-                file.write('> ' + image_source + '\n')
-            for answer in answers:
-                file.write(str(answer) + '\n<hr>\n')
-    except:
-        pass
+    def soup_init(self):
+        response = get(self.url, headers={'User-Agent': 'Mozilla/5.0 (Windows N\
+                                T 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, l\
+                                ike Gecko) Chrome/73.0.3683.86 Safari/537.36'})
+        if response.ok:
+            self.soup = BeautifulSoup(response.text, 'lxml')
 
-for url in get_urls():
-    write_one_page(url)
+    def content_init(self):
+        if self.soup == None:
+            return
+        headline = self.soup.find('div', {'class': 'headline'})
+        self.title = headline.h1.string
+        self.tag = '---\ntitle: 知乎日报|$t$\ndate: $d$\ntags: [知乎日报]\n---\n'
+        self.tag = self.tag.replace('$t$', self.title)
+        self.tag = self.tag.replace('$d$', str(datetime.now()))
+        self.image = '![](' + headline.img.attrs['src'] + ')'
+        self.answers = self.soup.find_all('div', {'class': 'answer'})
+        self.path = 'zhihu-daily/知乎日报' + self.title.replace('/', '') + '.md'
+        try:
+            self.image_source = headline.span.string
+        except:
+            self.image_source = None
+
+    def write(self):
+        if self.soup == None:
+            return
+        print('[Info] ' + self.url + ': ' + self.title + ' printing now.')
+        try:
+            with open(self.path, 'w', encoding='utf-8') as text:
+                text.write(self.tag)
+                text.write('# ' + self.title + '\n')
+                text.write(self.image + '\n')
+                if self.image_source:
+                    text.write('> ' + self.image_source + '\n')
+                for answer in self.answers:
+                    text.write(str(answer) + '\n<hr>\n')
+        except:
+            self.error_report()
+
+    def error_report(self):
+        print('[Error] An error happened when printing.')
+        print('[Error] Please contact the administrator.')
+
+
+path = 'zhihu-daily/'
+if not exists(path):
+    makedirs(path)
+
+main = 'https://daily.zhihu.com'
+divs = Page(main).soup.find_all('div', {'class': 'box'})
+for div in divs:
+    page = Page(main + div.a.attrs['href'])
+    page.content_init()
+    page.write()
